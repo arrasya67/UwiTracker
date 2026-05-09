@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OliTracker - Pantau Oli Anda</title>
+    
+    <!-- PWA & Mobile Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800" x-data="oliApp()">
+
+    <!-- Header -->
+    <header class="bg-blue-600 pb-28 pt-8 px-6 rounded-b-[40px] shadow-lg">
+        <div class="max-w-md mx-auto flex justify-between items-center text-white">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight">UWI<span class="text-blue-200">Tracker</span></h1>
+                <p class="text-xs text-blue-100 opacity-80">Monitoring OLI Motor UWI</p>
+            </div>
+            <button @click="showModal = true" class="bg-white/20 hover:bg-white/30 backdrop-blur-md p-3 rounded-2xl transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-6 -mt-20">
+        <!-- Dashboard Card -->
+        <div class="bg-white rounded-3xl p-6 shadow-xl shadow-blue-100 border border-blue-50 mb-8 overflow-hidden">
+            <div class="relative z-10">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1 text-nowrap">Target KM Ganti</p>
+                        <h2 class="text-4xl font-black text-blue-600" x-text="formatNumber(targetKm)">0</h2>
+                    </div>
+                    <!-- Input KM Motor Saat Ini -->
+                    <div class="text-right">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-tighter">KM Motor Sekarang</label>
+                        <input type="number" x-model="currentOdo" @input="calculateDashboard()" 
+                               class="w-24 text-right bg-blue-50 border-none rounded-lg text-blue-700 font-bold px-2 py-1 focus:ring-1 focus:ring-blue-400 outline-none">
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="mt-6">
+                    <div class="flex justify-between text-[10px] font-bold uppercase mb-2">
+                        <span class="text-slate-400">Kesehatan Oli</span>
+                        <span x-text="Math.round(progress) + '%'" :class="progress >= 90 ? 'text-red-500 font-extrabold' : 'text-blue-600'">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500 shadow-sm" 
+                             :style="`width: ${Math.min(progress, 100)}%`" 
+                             :class="progress >= 90 ? 'bg-red-500' : 'bg-blue-600'">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex items-center gap-2">
+                    <div :class="sisaKm > 0 ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'" class="px-3 py-1 rounded-full text-[10px] font-bold italic">
+                        <span x-text="sisaKm > 0 ? `${formatNumber(sisaKm)} km lagi sebelum ganti` : `Sudah lewat ${formatNumber(Math.abs(sisaKm))} km!` "></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Riwayat Section -->
+        <div class="flex justify-between items-center mb-4 px-1">
+            <h3 class="font-extrabold text-slate-800">Riwayat Penggantian </h3>
+            <span class="bg-blue-100 text-blue-700 text-[10px] px-3 py-1 rounded-full font-bold uppercase" x-text="history.length + ' Catatan'"></span>
+        </div>
+
+        <div class="space-y-4 pb-12">
+            <template x-for="(item, index) in history" :key="index">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between group hover:border-blue-100 transition">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-blue-50 text-blue-600 p-3 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm" x-text="item.merk"></p>
+                            <p class="text-[10px] text-slate-400" x-text="formatDate(item.tanggal)"></p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-blue-700 text-sm" x-text="formatNumber(item.km) + ' KM'"></p>
+                        <button @click="deleteEntry(index)" class="text-[9px] text-red-300 hover:text-red-500 font-bold uppercase tracking-tighter">Hapus</button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </main>
+
+    <!-- Modal Input -->
+    <div x-show="showModal" class="fixed inset-0 z-50 flex items-center justify-center px-6" x-cloak>
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal = false"></div>
+        <div class="bg-white w-full max-w-md p-8 rounded-[32px] shadow-2xl relative z-10">
+            <h3 class="text-2xl font-black text-slate-800 mb-6">Input Data Oli</h3>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 px-1 tracking-widest">Merk Oli</label>
+                    <input type="text" x-model="formData.merk" placeholder="Contoh: Shell Advance" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 px-1 tracking-widest">KM Saat Ganti</label>
+                    <input type="number" x-model="formData.km" placeholder="0" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 px-1 tracking-widest">Tanggal Ganti</label>
+                    <input type="date" x-model="formData.tanggal" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition">
+                </div>
+            </div>
+            <div class="mt-8 flex gap-3">
+                <button @click="showModal = false" class="flex-1 py-4 text-sm font-bold text-slate-400 bg-slate-100 rounded-2xl">Batal</button>
+                <button @click="saveEntry()" class="flex-[2] py-4 text-sm font-bold text-white bg-blue-600 rounded-2xl shadow-lg shadow-blue-200">Simpan Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function oliApp() {
+            return {
+                showModal: false,
+                history: JSON.parse(localStorage.getItem('oli_history') || '[]'),
+                currentOdo: localStorage.getItem('last_odo') || 0,
+                targetKm: 0,
+                sisaKm: 0,
+                progress: 0,
+                formData: { merk: '', km: '', tanggal: new Date().toISOString().split('T')[0] },
+
+                init() {
+                    this.calculateDashboard();
+                    // Registrasi Service Worker PWA
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.register('sw.js').catch(() => {});
+                    }
+                },
+
+                saveEntry() {
+                    if(!this.formData.merk || !this.formData.km) return alert('Lengkapi data!');
+                    
+                    const newEntry = {
+                        merk: this.formData.merk,
+                        km: parseInt(this.formData.km),
+                        tanggal: this.formData.tanggal
+                    };
+
+                    this.history.unshift(newEntry);
+                    this.currentOdo = newEntry.km; 
+                    this.updateStorage();
+                    this.formData = { merk: '', km: '', tanggal: new Date().toISOString().split('T')[0] };
+                    this.showModal = false;
+                },
+
+                deleteEntry(index) {
+                    if(confirm('Hapus catatan ini?')) {
+                        this.history.splice(index, 1);
+                        this.updateStorage();
+                    }
+                },
+
+                updateStorage() {
+                    localStorage.setItem('oli_history', JSON.stringify(this.history));
+                    localStorage.setItem('last_odo', this.currentOdo);
+                    this.calculateDashboard();
+                },
+
+                calculateDashboard() {
+                    if (this.history.length > 0) {
+                        const lastChange = this.history[0];
+                        const odoNow = parseInt(this.currentOdo) || lastChange.km;
+                        
+                        this.targetKm = lastChange.km + 2000;
+                        this.sisaKm = this.targetKm - odoNow;
+                        
+                        const jarakTempuh = odoNow - lastChange.km;
+                        this.progress = (jarakTempuh / 2000) * 100;
+                        if(this.progress < 0) this.progress = 0;
+                        
+                        localStorage.setItem('last_odo', this.currentOdo);
+                    } else {
+                        this.targetKm = 0, this.sisaKm = 0, this.progress = 0;
+                    }
+                },
+
+                formatNumber(num) {
+                    return new Intl.NumberFormat('id-ID').format(num);
+                },
+
+                formatDate(dateStr) {
+                    return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
