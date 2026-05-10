@@ -1,6 +1,6 @@
 const CACHE_NAME = 'olitracker-v1';
 const assets = [
-  './oli.html',
+  './index.html',
   './manifest.json'
 ];
 
