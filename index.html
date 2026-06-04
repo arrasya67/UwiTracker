@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OliTracker - Pantau Oli Anda</title>
     
+    <!-- PWA & Mobile Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,6 +22,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800" x-data="oliApp()">
 
+    <!-- Header -->
     <header class="bg-blue-600 pb-28 pt-8 px-6 rounded-b-[40px] shadow-lg">
         <div class="max-w-md mx-auto flex justify-between items-center text-white">
             <div>
@@ -36,6 +38,7 @@
     </header>
 
     <main class="max-w-md mx-auto px-6 -mt-20">
+        <!-- Dashboard Card -->
         <div class="bg-white rounded-3xl p-6 shadow-xl shadow-blue-100 border border-blue-50 mb-8 overflow-hidden">
             <div class="relative z-10">
                 <div class="flex justify-between items-start mb-4">
@@ -50,6 +53,7 @@
                     </div>
                 </div>
 
+                <!-- Progress Bar Pemakaian Oli (Maju dari 0% ke 100%) -->
                 <div class="mt-6">
                     <div class="flex justify-between text-[10px] font-bold uppercase mb-2">
                         <span class="text-slate-400">Progress Pemakaian Oli</span>
@@ -71,28 +75,35 @@
             </div>
         </div>
 
+        <!-- Riwayat Section -->
         <div class="flex justify-between items-center mb-4 px-1">
             <h3 class="font-extrabold text-slate-800">Riwayat Perawatan</h3>
             <span class="bg-blue-100 text-blue-700 text-[10px] px-3 py-1 rounded-full font-bold uppercase" x-text="history.length + ' Catatan'"></span>
         </div>
 
+        <!-- List Riwayat Perawatan Premium dengan Efek Hover Berubah Biru & Terangkat -->
         <div class="space-y-4 pb-12">
             <template x-for="(item, index) in history" :key="index">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-3 group hover:border-blue-200 transition duration-300">
+                <!-- REVISI: Penambahan efek interaktif hover premium pada background, border, shadow, dan animasi translasi -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-3 group hover:bg-blue-50/40 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-100/80 hover:-translate-y-1 transform transition-all duration-300 cursor-pointer">
                     <div class="flex items-start justify-between">
                         <div class="flex items-center gap-4">
+                            <!-- Icon Kategori Responsif -->
                             <div :class="item.jenis === 'Oli Mesin' ? 'bg-blue-50 text-blue-600' : item.jenis === 'Oli Gardan' ? 'bg-teal-50 text-teal-600' : 'bg-purple-50 text-purple-600'" class="p-3.5 rounded-2xl transition">
+                                <!-- Icon Oli Mesin (Mulus Sempurna) -->
                                 <template x-if="item.jenis === 'Oli Mesin'">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a7.5 7.5 0 01-7.5-7.5c0-4.142 7.5-11.5 7.5-11.5s7.5 7.358 7.5 11.5A7.5 7.5 0 0112 21z" />
                                     </svg>
                                 </template>
+                                <!-- Icon Oli Gardan (Gear Transmisi) -->
                                 <template x-if="item.jenis === 'Oli Gardan'">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                         <circle cx="12" cy="12" r="3" />
                                     </svg>
                                 </template>
+                                <!-- Icon Servis Umum (Kunci Pas) -->
                                 <template x-if="item.jenis === 'Servis & Lainnya'">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
@@ -113,12 +124,14 @@
                                 </p>
                             </div>
                         </div>
+                        <!-- SISI KANAN -->
                         <div class="text-right flex flex-col items-end justify-center gap-0.5">
                             <p x-show="item.jenis !== 'Servis & Lainnya' && item.km > 0" class="font-black text-slate-900 text-base tracking-tight" x-text="formatNumber(item.km) + ' KM'"></p>
                             <p class="font-black text-blue-600 text-base tracking-tight" x-text="item.harga ? formatRupiah(item.harga) : 'Rp 0'"></p>
                         </div>
                     </div>
                     
+                    <!-- Catatan Tambahan -->
                     <template x-if="item.catatan">
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-600 leading-relaxed">
                             <span class="font-bold text-slate-700 block mb-0.5">Catatan Perawatan:</span> 
@@ -126,16 +139,18 @@
                         </div>
                     </template>
                     
+                    <!-- Menu Aksi -->
                     <div class="flex justify-end gap-4 border-t border-slate-100 pt-2.5 mt-1 text-xs">
-                        <button @click="openEditModal(index)" class="text-amber-500 hover:text-amber-600 font-bold tracking-wide transition">Ubah</button>
+                        <button @click.stop="openEditModal(index)" class="text-amber-500 hover:text-amber-600 font-bold tracking-wide transition">Ubah</button>
                         <span class="text-slate-200">|</span>
-                        <button @click="deleteEntry(index)" class="text-red-400 hover:text-red-500 font-bold tracking-wide transition">Hapus</button>
+                        <button @click.stop="deleteEntry(index)" class="text-red-400 hover:text-red-500 font-bold tracking-wide transition">Hapus</button>
                     </div>
                 </div>
             </template>
         </div>
     </main>
 
+    <!-- Modal Form Input -->
     <div x-show="showModal" class="fixed inset-0 z-50 flex items-center justify-center px-6" x-cloak>
         <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal = false"></div>
         <div class="bg-white w-full max-w-md p-6 rounded-[32px] shadow-2xl relative z-10 max-h-[90vh] overflow-y-auto">
