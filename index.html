@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OliTracker - Pantau Oli Anda</title>
     
-    <!-- PWA & Mobile Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,7 +12,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -22,14 +21,13 @@
 </head>
 <body class="bg-slate-50 text-slate-800" x-data="oliApp()">
 
-    <!-- Header -->
     <header class="bg-blue-600 pb-28 pt-8 px-6 rounded-b-[40px] shadow-lg">
         <div class="max-w-md mx-auto flex justify-between items-center text-white">
             <div>
                 <h1 class="text-2xl font-extrabold tracking-tight">UWI<span class="text-blue-200">Tracker</span></h1>
-                <p class="text-xs text-blue-100 opacity-80">Monitoring OLI Motor UWI</p>
+                <p class="text-xs text-blue-100 opacity-80">Monitoring Perawatan Motor UWI</p>
             </div>
-            <button @click="showModal = true" class="bg-white/20 hover:bg-white/30 backdrop-blur-md p-3 rounded-2xl transition">
+            <button @click="openAddModal()" class="bg-white/20 hover:bg-white/30 backdrop-blur-md p-3 rounded-2xl transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -38,15 +36,13 @@
     </header>
 
     <main class="max-w-md mx-auto px-6 -mt-20">
-        <!-- Dashboard Card -->
         <div class="bg-white rounded-3xl p-6 shadow-xl shadow-blue-100 border border-blue-50 mb-8 overflow-hidden">
             <div class="relative z-10">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1 text-nowrap">Target KM Ganti</p>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1 text-nowrap">Target KM Ganti Oli Mesin</p>
                         <h2 class="text-4xl font-black text-blue-600" x-text="formatNumber(targetKm)">0</h2>
                     </div>
-                    <!-- Input KM Motor Saat Ini -->
                     <div class="text-right">
                         <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-tighter">KM Motor Sekarang</label>
                         <input type="number" x-model="currentOdo" @input="calculateDashboard()" 
@@ -54,16 +50,15 @@
                     </div>
                 </div>
 
-                <!-- Progress Bar -->
                 <div class="mt-6">
                     <div class="flex justify-between text-[10px] font-bold uppercase mb-2">
-                        <span class="text-slate-400">Kesehatan Oli</span>
-                        <span x-text="Math.round(progress) + '%'" :class="progress >= 90 ? 'text-red-500 font-extrabold' : 'text-blue-600'">0%</span>
+                        <span class="text-slate-400">Progress Pemakaian Oli</span>
+                        <span x-text="Math.round(progress) + '%'" :class="progress >= 85 ? 'text-red-500 font-extrabold' : 'text-blue-600'">0%</span>
                     </div>
                     <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
                         <div class="h-full rounded-full transition-all duration-500 shadow-sm" 
-                             :style="`width: ${Math.min(progress, 100)}%`" 
-                             :class="progress >= 90 ? 'bg-red-500' : 'bg-blue-600'">
+                             :style="`width: ${progress}%`" 
+                             :class="progress >= 85 ? 'bg-red-500' : 'bg-blue-600'">
                         </div>
                     </div>
                 </div>
@@ -76,57 +71,125 @@
             </div>
         </div>
 
-        <!-- Riwayat Section -->
         <div class="flex justify-between items-center mb-4 px-1">
-            <h3 class="font-extrabold text-slate-800">Riwayat Penggantian </h3>
+            <h3 class="font-extrabold text-slate-800">Riwayat Perawatan</h3>
             <span class="bg-blue-100 text-blue-700 text-[10px] px-3 py-1 rounded-full font-bold uppercase" x-text="history.length + ' Catatan'"></span>
         </div>
 
         <div class="space-y-4 pb-12">
             <template x-for="(item, index) in history" :key="index">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between group hover:border-blue-100 transition">
-                    <div class="flex items-center gap-4">
-                        <div class="bg-blue-50 text-blue-600 p-3 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 100 4v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2a2 2 0 100-4V6z" />
-                            </svg>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-3 group hover:border-blue-200 transition duration-300">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-4">
+                            <div :class="item.jenis === 'Oli Mesin' ? 'bg-blue-50 text-blue-600' : item.jenis === 'Oli Gardan' ? 'bg-teal-50 text-teal-600' : 'bg-purple-50 text-purple-600'" class="p-3.5 rounded-2xl transition">
+                                <template x-if="item.jenis === 'Oli Mesin'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a7.5 7.5 0 01-7.5-7.5c0-4.142 7.5-11.5 7.5-11.5s7.5 7.358 7.5 11.5A7.5 7.5 0 0112 21z" />
+                                    </svg>
+                                </template>
+                                <template x-if="item.jenis === 'Oli Gardan'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </template>
+                                <template x-if="item.jenis === 'Servis & Lainnya'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+                                    </svg>
+                                </template>
+                            </div>
+                            <div>
+                                <div class="flex flex-col gap-1">
+                                    <span x-text="item.jenis" 
+                                          :class="item.jenis === 'Oli Mesin' ? 'bg-blue-50 text-blue-700 border-blue-200' : item.jenis === 'Oli Gardan' ? 'bg-teal-50 text-teal-700 border-teal-200' : 'bg-purple-50 text-purple-700 border-purple-200'" 
+                                          class="w-max text-[9px] uppercase px-2.5 py-0.5 rounded-md font-extrabold tracking-wider border"></span>
+                                    <h4 class="font-extrabold text-slate-800 text-base tracking-tight capitalize" x-text="item.merk"></h4>
+                                </div>
+                                <p class="text-xs text-slate-500 font-medium mt-1.5 flex flex-wrap items-center gap-1.5">
+                                    <span x-text="formatDate(item.tanggal)"></span>
+                                    <span x-show="item.bengkel" class="text-slate-300 font-normal mx-0.5">•</span>
+                                    <span x-show="item.bengkel" class="text-blue-600 font-bold bg-blue-50/80 px-2 py-0.5 rounded capitalize" x-text="'di ' + item.bengkel"></span>
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-bold text-slate-800 text-sm" x-text="item.merk"></p>
-                            <p class="text-[10px] text-slate-400" x-text="formatDate(item.tanggal)"></p>
+                        <div class="text-right flex flex-col items-end justify-center gap-0.5">
+                            <p x-show="item.jenis !== 'Servis & Lainnya' && item.km > 0" class="font-black text-slate-900 text-base tracking-tight" x-text="formatNumber(item.km) + ' KM'"></p>
+                            <p class="font-black text-blue-600 text-base tracking-tight" x-text="item.harga ? formatRupiah(item.harga) : 'Rp 0'"></p>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="font-bold text-blue-700 text-sm" x-text="formatNumber(item.km) + ' KM'"></p>
-                        <button @click="deleteEntry(index)" class="text-[9px] text-red-300 hover:text-red-500 font-bold uppercase tracking-tighter">Hapus</button>
+                    
+                    <template x-if="item.catatan">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-600 leading-relaxed">
+                            <span class="font-bold text-slate-700 block mb-0.5">Catatan Perawatan:</span> 
+                            <span x-text="item.catatan" class="italic"></span>
+                        </div>
+                    </template>
+                    
+                    <div class="flex justify-end gap-4 border-t border-slate-100 pt-2.5 mt-1 text-xs">
+                        <button @click="openEditModal(index)" class="text-amber-500 hover:text-amber-600 font-bold tracking-wide transition">Ubah</button>
+                        <span class="text-slate-200">|</span>
+                        <button @click="deleteEntry(index)" class="text-red-400 hover:text-red-500 font-bold tracking-wide transition">Hapus</button>
                     </div>
                 </div>
             </template>
         </div>
     </main>
 
-    <!-- Modal Input -->
     <div x-show="showModal" class="fixed inset-0 z-50 flex items-center justify-center px-6" x-cloak>
         <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal = false"></div>
-        <div class="bg-white w-full max-w-md p-8 rounded-[32px] shadow-2xl relative z-10">
-            <h3 class="text-2xl font-black text-slate-800 mb-6">Input Data Oli</h3>
-            <div class="space-y-5">
+        <div class="bg-white w-full max-w-md p-6 rounded-[32px] shadow-2xl relative z-10 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-black text-slate-800 mb-5" x-text="isEditMode ? 'Ubah Data Perawatan' : 'Tambah Data Perawatan'"></h3>
+            
+            <div class="space-y-4">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 px-1 tracking-widest">Merk Oli</label>
-                    <input type="text" x-model="formData.merk" placeholder="Contoh: Shell Advance" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 px-1 tracking-widest">Jenis Perawatan</label>
+                    <select x-model="formData.jenis" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none font-semibold text-slate-700">
+                        <option value="Oli Mesin">Oli Mesin</option>
+                        <option value="Oli Gardan">Oli Gardan</option>
+                        <option value="Servis & Lainnya">Servis & Lainnya</option>
+                    </select>
                 </div>
+
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 px-1 tracking-widest">KM Saat Ganti</label>
-                    <input type="number" x-model="formData.km" placeholder="0" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 px-1 tracking-widest"
+                           x-text="formData.jenis === 'Servis & Lainnya' ? 'Nama Part / Jenis Servis' : 'Merk Oli'"></label>
+                    <input type="text" x-model="formData.merk" 
+                           :placeholder="formData.jenis === 'Servis & Lainnya' ? 'Contoh: Ganti Ban Luar / Servis CVT' : 'Contoh: Shell Advance / SPX2'" 
+                           class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none">
                 </div>
+
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 px-1 tracking-widest">Tanggal Ganti</label>
-                    <input type="date" x-model="formData.tanggal" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none transition">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 px-1 tracking-widest"
+                           x-text="formData.jenis === 'Servis & Lainnya' ? 'Biaya Servis & Part (Rp)' : 'Harga Oli (Rp)'"></label>
+                    <input type="number" x-model="formData.harga" placeholder="0" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none">
+                </div>
+
+                <div :class="formData.jenis === 'Servis & Lainnya' ? 'block' : 'grid grid-cols-2 gap-3'">
+                    <div x-show="formData.jenis !== 'Servis & Lainnya'">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 px-1 tracking-widest">KM Saat Ini</label>
+                        <input type="number" x-model="formData.km" placeholder="0" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 px-1 tracking-widest">Tanggal Perawatan</label>
+                        <input type="date" x-model="formData.tanggal" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 px-1 tracking-widest">Bengkel Ganti / Tempat Servis</label>
+                    <input type="text" x-model="formData.bengkel" placeholder="Contoh: AHASS Adiwerna / Bengkel Motor Langganan" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none">
+                </div>
+
+                <div x-show="formData.jenis === 'Servis & Lainnya'">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 px-1 tracking-widest">Catatan Tambahan (Opsional)</label>
+                    <textarea x-model="formData.catatan" rows="2" placeholder="Contoh: Ganti ban dalam sekalian, spek luar ukuran 90/90-14 FDR" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 outline-none resize-none text-sm"></textarea>
                 </div>
             </div>
-            <div class="mt-8 flex gap-3">
-                <button @click="showModal = false" class="flex-1 py-4 text-sm font-bold text-slate-400 bg-slate-100 rounded-2xl">Batal</button>
-                <button @click="saveEntry()" class="flex-[2] py-4 text-sm font-bold text-white bg-blue-600 rounded-2xl shadow-lg shadow-blue-200">Simpan Data</button>
+
+            <div class="mt-6 flex gap-3">
+                <button @click="showModal = false" class="flex-1 py-3.5 text-sm font-bold text-slate-400 bg-slate-100 rounded-2xl">Batal</button>
+                <button @click="saveEntry()" class="flex-[2] py-3.5 text-sm font-bold text-white bg-blue-600 rounded-2xl shadow-lg shadow-blue-200" x-text="isEditMode ? 'Simpan Perubahan' : 'Simpan Data'"></button>
             </div>
         </div>
     </div>
@@ -135,39 +198,69 @@
         function oliApp() {
             return {
                 showModal: false,
+                isEditMode: false,
+                editIndex: null,
                 history: JSON.parse(localStorage.getItem('oli_history') || '[]'),
                 currentOdo: localStorage.getItem('last_odo') || 0,
                 targetKm: 0,
                 sisaKm: 0,
                 progress: 0,
-                formData: { merk: '', km: '', tanggal: new Date().toISOString().split('T')[0] },
+                formData: { jenis: 'Oli Mesin', merk: '', km: '', harga: '', tanggal: new Date().toISOString().split('T')[0], bengkel: '', catatan: '' },
 
                 init() {
                     this.calculateDashboard();
-                    // Registrasi Service Worker PWA
                     if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.register('sw.js').catch(() => {});
+                        navigator.serviceWorker.register('./sw.js').catch(() => {});
                     }
                 },
 
+                openAddModal() {
+                    this.isEditMode = false;
+                    this.editIndex = null;
+                    this.formData = { jenis: 'Oli Mesin', merk: '', km: '', harga: '', tanggal: new Date().toISOString().split('T')[0], bengkel: '', catatan: '' };
+                    this.showModal = true;
+                },
+
+                openEditModal(index) {
+                    this.isEditMode = true;
+                    this.editIndex = index;
+                    this.formData = { ...this.history[index] };
+                    this.showModal = true;
+                },
+
                 saveEntry() {
-                    if(!this.formData.merk || !this.formData.km) return alert('Lengkapi data!');
+                    if(!this.formData.merk) return alert('Mohon lengkapi nama barang/servis!');
                     
-                    const newEntry = {
+                    if(this.formData.jenis !== 'Servis & Lainnya' && !this.formData.km) {
+                        return alert('Mohon masukkan kilometer motor saat ini!');
+                    }
+                    
+                    const entryData = {
+                        jenis: this.formData.jenis,
                         merk: this.formData.merk,
-                        km: parseInt(this.formData.km),
-                        tanggal: this.formData.tanggal
+                        km: this.formData.jenis === 'Servis & Lainnya' ? (parseInt(this.formData.km) || 0) : parseInt(this.formData.km),
+                        harga: parseInt(this.formData.harga) || 0,
+                        tanggal: this.formData.tanggal,
+                        bengkel: this.formData.bengkel || '',
+                        catatan: this.formData.jenis === 'Servis & Lainnya' ? this.formData.catatan : ''
                     };
 
-                    this.history.unshift(newEntry);
-                    this.currentOdo = newEntry.km; 
+                    if (this.isEditMode) {
+                        this.history[this.editIndex] = entryData;
+                    } else {
+                        this.history.unshift(entryData);
+                    }
+                    
+                    if(entryData.km > this.currentOdo && this.formData.jenis !== 'Servis & Lainnya') {
+                        this.currentOdo = entryData.km;
+                    }
+                    
                     this.updateStorage();
-                    this.formData = { merk: '', km: '', tanggal: new Date().toISOString().split('T')[0] };
                     this.showModal = false;
                 },
 
                 deleteEntry(index) {
-                    if(confirm('Hapus catatan ini?')) {
+                    if(confirm('Hapus catatan riwayat ini?')) {
                         this.history.splice(index, 1);
                         this.updateStorage();
                     }
@@ -180,25 +273,32 @@
                 },
 
                 calculateDashboard() {
-                    if (this.history.length > 0) {
-                        const lastChange = this.history[0];
-                        const odoNow = parseInt(this.currentOdo) || lastChange.km;
-                        
-                        this.targetKm = lastChange.km + 2000;
+                    const lastOliMesin = this.history.find(item => item.jenis === 'Oli Mesin');
+
+                    if (lastOliMesin) {
+                        const odoNow = parseInt(this.currentOdo) || lastOliMesin.km;
+                        this.targetKm = lastOliMesin.km + 2000;
                         this.sisaKm = this.targetKm - odoNow;
                         
-                        const jarakTempuh = odoNow - lastChange.km;
-                        this.progress = (jarakTempuh / 2000) * 100;
-                        if(this.progress < 0) this.progress = 0;
+                        const jarakTerpakai = odoNow - lastOliMesin.km;
+                        let persenMaju = (jarakTerpakai / 2000) * 100;
                         
-                        localStorage.setItem('last_odo', this.currentOdo);
+                        if (persenMaju > 100) persenMaju = 100;
+                        if (persenMaju < 0) persenMaju = 0;
+                        
+                        this.progress = persenMaju;
                     } else {
-                        this.targetKm = 0, this.sisaKm = 0, this.progress = 0;
+                        this.targetKm = 0; this.sisaKm = 0; this.progress = 0;
                     }
+                    localStorage.setItem('last_odo', this.currentOdo);
                 },
 
                 formatNumber(num) {
                     return new Intl.NumberFormat('id-ID').format(num);
+                },
+
+                formatRupiah(num) {
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
                 },
 
                 formatDate(dateStr) {
